@@ -1,0 +1,80 @@
+body {
+  background-color: #27273c;
+  font-family: sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 400;
+}
+
+.inner-content{
+  padding: 5px;
+}
+
+button {
+  cursor: pointer;
+}
+.middle input,
+.cart-item input {
+  max-width: 36px;
+  background: transparent;
+  border: 1px solid #5c5c5c;
+  border-radius: 1px;
+  text-align: center;
+  padding: 4px 0;
+  color: #fff;
+}
+
+.qty-minus,
+.qty-plus {
+  width: 20px;
+  cursor: pointer;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+
+/* btn halnders */
+.btn-handlers {
+  text-align: end;
+  margin-top: 28px;
+}
+.btn-handlers button { 
+  border: none;
+  border-radius: 5px;
+  color: #FFF;
+  padding: 3px 8px;
+}
+.cancel-btn {
+  background: rgba(255, 81, 0, 0.726);
+  margin-right: 16px;
+  transition: all 0.2s;
+}
+.cancel-btn:hover {
+  background: rgba(209, 91, 37, 0.726);
+  transition: all 0.2s;
+}
+.ok-btn {
+  background: rgba(30, 99, 139, 0.918);
+  transition: all 0.2s;
+}
+.ok-btn:hover {
+  background: rgba(26, 68, 92, 0.918);
+  transition: all 0.2s;
+}
