@@ -3,7 +3,7 @@
     <div class="inner-content">
       <div class="box-container">
         <div class="box-body">
-          <div class="list-item" v-for="item in listItems" :key="item.Id">
+          <div class="list-item" v-for="item in listItems" :key="item._id">
             <div class="item-body" :class="{ added: isItemAdded(item) }">
               <div class="delete-item">
                 <span
@@ -23,11 +23,11 @@
                     @click="qtyMinus(item)"
                     class="qty-minus"
                   />
-                  <input type="number" min="1" v-model.number="item.Amount" />
+                  <input type="number" min="1" v-model="item.Qty" />
                   <input
                     type="button"
                     value="+"
-                    @click="item.Amount++"
+                    @click="item.Qty++"
                     class="qty-plus"
                   />
                 </div>
@@ -36,9 +36,16 @@
                 <button
                   class="add-cart-btn"
                   @click="addItemToCart(item)"
-                  v-if="!item.AddedToCart"
+                  v-if="!isItemAdded(item)"
                 >
                   Add to Cart
+                </button>
+                <button
+                  class="add-cart-btn"
+                  @click="updateItemQtyToCart(item)"
+                  v-if="isItemAdded(item)"
+                >
+                  Added(add more)
                 </button>
               </div>
             </div>
@@ -57,14 +64,11 @@
 </template>
 
 <script>
-import itemsStorage from "../storage/ListStore";
-import cartItemsStorage from "../storage/CartItemsStore";
 import DeleteItemDialog from "./DeleteItemDialog.vue";
 
 export default {
   components: { DeleteItemDialog },
   name: "ShoppingList",
-  props: ["shoppingItems"],
   data() {
     return {
       cart: [],
@@ -73,28 +77,75 @@ export default {
     };
   },
   mounted() {
-    this.cart = cartItemsStorage.getCartItemsList();
-    this.listItems = itemsStorage.getListItems();
+    this.getCartItems();
+    this.getListItems();
   },
   methods: {
+    getListItems() {
+      this.$axios
+        .get("/list-items")
+        .then((result) => {
+          this.listItems = result.data;
+          console.log(this.listItems);
+        })
+        .catch((err) => console.log(err));
+    },
+
+    getCartItems() {
+      this.$axios
+        .get("/cart-items")
+        .then((res) => {
+          this.cart = res.data;
+        })
+        .catch((err) => console.log(err));
+    },
+
     isDeleteItemClicked(item) {
       this.itemToDelete = item;
     },
+
+    updateItemQtyToCart(item) {
+      this.$axios
+        .put(`cart-items/${item._id}`, {
+          Qty: item.Qty,
+          ItemId: item._id,
+          Item: item,
+        })
+        .then((result) => {
+          console.log("updateItem", result);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+
     deleteItem(item) {
-      itemsStorage.removeItem(item);
-      cartItemsStorage.removeItemFromCart(item);
-      this.itemToDelete = null
+      this.$axios.delete(`/list-items/${item._id}`).then(() => {
+        this.$axios.delete(`/cart-items/${item._id}`).then(() => {
+          this.itemToDelete = null;
+        });
+      });
     },
+
     addItemToCart(item) {
-      cartItemsStorage.addToCart(item);
+      this.$axios
+        .post("/cart-items", item)
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
+
     qtyMinus(item) {
-      if (item.Amount > 0) {
-        item.Amount--;
+      if (item.Qty > 0) {
+        item.Qty--;
       }
     },
+
     isItemAdded(item) {
-      return !!this.cart.find((i) => i.itemId === item.Id);
+      return !!this.cart.find((i) => i.ItemId === item._id);
     },
   },
 };
@@ -106,8 +157,20 @@ export default {
   flex-wrap: wrap;
 }
 .list-item {
-  flex: 0 0 25%;
+  flex: 0 1 100%;
 }
+
+@media (min-width: 768px) {
+  .list-item {
+    flex: 0 1 50%;
+  }
+}
+@media (min-width: 959px) {
+  .list-item {
+    flex: 0 1 33%;
+  }
+}
+
 .item-body {
   padding: 10px;
   margin: 5px;

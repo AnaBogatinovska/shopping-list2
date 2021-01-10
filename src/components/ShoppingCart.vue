@@ -9,11 +9,11 @@
           <div
             class="cart-item"
             v-for="cartItem in cartItems"
-            :key="cartItem.itemId"
+            :key="cartItem.ItemId"
           >
             <div class="cart-item-body">
               <h3 style="text-transform: uppercase; margin-bottom: 16px">
-                {{ cartItem.item.Name }}
+                {{ cartItem.Item.Name }}
               </h3>
               <div class="info">
                 <div>
@@ -23,19 +23,19 @@
                     @click="qtyMinus(cartItem)"
                     class="qty-minus"
                   />
-                  <input type="number" min="1" v-model.number="cartItem.qty" />
+                  <input type="number" min="1" v-model.number="cartItem.Qty" />
                   <input
                     type="button"
                     value="+"
-                    @click="cartItem.qty++"
+                    @click="cartItem.Qty++"
                     class="qty-plus"
                   />
                 </div>
 
-                <span class="cost">{{ cartItem.item.Price }} den.</span>
+                <span class="cost">{{ cartItem.Item.Price }} den.</span>
                 <button
                   class="del-cart-item"
-                  @click="deleteItemFromCart(cartItem.item)"
+                  @click="deleteItemFromCart(cartItem.Item)"
                 >
                   <span class="material-icons del-icon">
                     remove_circle_outline
@@ -73,8 +73,6 @@
 </template>
 
 <script>
-import cartItemsStorage from "../storage/CartItemsStore";
-
 export default {
   name: "ShoppingCart",
   data() {
@@ -82,14 +80,27 @@ export default {
       cartItems: [],
     };
   },
-  mounted() {
-    this.cartItems = cartItemsStorage.getCartItemsList()  ;
-  
-    console.log( this.cartItems)
+  beforeMount() {
+    this.getCartItems();
   },
   methods: {
+    getCartItems() {
+      this.$axios
+        .get("/cart-items")
+        .then((res) => {
+          this.cartItems = res.data;
+          console.log(this.cartItems)
+        })
+        .catch((err) => console.log(err));
+    },
     deleteItemFromCart(item) {
-      cartItemsStorage.removeItemFromCart(item);
+
+      this.$axios
+        .delete(`/cart-items/${item._id}`)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => console.log(err));
     },
     sum() {
       let sum = 0;
@@ -97,8 +108,8 @@ export default {
       this.cartItems.forEach((cartItem) => {
         let amPr = null;
 
-        if (cartItem.qty) {
-          amPr = +cartItem.qty * +cartItem.item.Price;
+        if (cartItem.Qty) {
+          amPr = +cartItem.Qty * +cartItem.Item.Price;
           sum += amPr;
         } else {
           sum += +cartItem.Price;
@@ -112,13 +123,13 @@ export default {
     },
 
     qtyMinus(item) {
-      if (item.qty > 0) {
-        item.qty--;
+      if (item.Qty > 0) {
+        item.Qty--;
       }
     },
     closeCart() {
-      this.$router.go(-1)
-    }
+      this.$router.go(-1);
+    },
   },
 };
 </script>
@@ -222,24 +233,24 @@ export default {
 }
 
 .c-btn {
-    border: 1px solid #eeeeee57;
-    background: transparent;
-    border-radius: 5px;
-    color: #ffffffad;
-    padding: 3px 6px;
-    margin-right: 10px;
+  border: 1px solid #eeeeee57;
+  background: transparent;
+  border-radius: 5px;
+  color: #ffffffad;
+  padding: 3px 6px;
+  margin-right: 10px;
 }
 
 .b-btn {
   background: #f46f00;
-    border-radius: 5px;
-    color: #fff;
-    padding: 3px 6px;
-    text-shadow: 0 1px 0 rgba(0, 51, 83, 0.3);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 0 1px rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    background-image: linear-gradient(-180deg, #d82d2d 0%, #e29100 100%);
-    text-transform: uppercase;
+  border-radius: 5px;
+  color: #fff;
+  padding: 3px 6px;
+  text-shadow: 0 1px 0 rgba(0, 51, 83, 0.3);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 0 1px rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-image: linear-gradient(-180deg, #d82d2d 0%, #e29100 100%);
+  text-transform: uppercase;
 }
 
 .no-items {

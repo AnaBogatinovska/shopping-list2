@@ -1,32 +1,32 @@
 <template>
   <div>
     <header>
-          <div class="header-wrapper">
-            <h1>SHOPPING LIST</h1>
-            <router-link :to="{ name: 'ShoppingCart' }" style="position:relative">
-              <span class="material-icons cart">
-                shopping_cart
-              </span>
-              <span class="n-items" v-if="cart">{{ cart.length }}</span>
-            </router-link>
-          </div>
+      <div class="header-wrapper">
+        <h1>SHOPPING LIST</h1>
+        <router-link :to="{ name: 'ShoppingCart' }" style="position: relative">
+          <span class="material-icons cart"> shopping_cart </span>
+          <span class="n-items" v-if="cart">{{ cart.length }}</span>
+        </router-link>
+      </div>
     </header>
   </div>
 </template>
 
 <script>
-import cartItemsStorage from "../storage/CartItemsStore";
-
 export default {
   name: "Header",
   data() {
     return {
-      cart: []
+      cart: [],
     };
   },
   mounted() {
-   this.cart = cartItemsStorage.getCartItemsList()
-   console.log('cart', this.cart)
+    this.$axios
+      .get("/cart-items")
+      .then((res) => {
+        this.cart = res.data;
+      })
+      .catch((err) => console.log(err));
   },
 };
 </script>
@@ -54,12 +54,12 @@ export default {
 }
 .n-items {
   position: absolute;
-    color: #fff;
-    background: red;
-    top: -7px;
-    right: -6px;
-    font-size: 12px;
-    padding: 1px 4px;
-    border-radius: 3px;
+  color: #fff;
+  background: red;
+  top: -7px;
+  right: -6px;
+  font-size: 12px;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 </style>
